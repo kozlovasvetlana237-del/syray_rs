@@ -11,10 +11,6 @@ function getAccountClass(acc) {
   return '';
 }
 
-function getCounterparty(t) {
-  return t.direction === 'Входящий' ? (t.payer || '') : (t.receiver || '');
-}
-
 function toggleCategory(header) {
   const arrow = header.querySelector('.arrow');
   const tx = header.nextElementSibling;
@@ -24,17 +20,13 @@ function toggleCategory(header) {
 
 function updateStats(dateFrom, dateTo, account, direction) {
   let totalIn = 0, totalOut = 0;
-  for (const cat of Storage.categories()) {
-    const cd = Storage.categoryData(cat);
-    if (!cd) continue;
-    for (const t of cd.transactions) {
-      if (dateFrom && t.date < dateFrom) continue;
-      if (dateTo && t.date > dateTo) continue;
-      if (account && t.account !== account) continue;
-      if (direction && t.direction !== direction) continue;
-      if (t.direction === 'Входящий') totalIn += t.amount;
-      else totalOut += t.amount;
-    }
+  for (const t of Storage.allTransactions()) {
+    if (dateFrom && t.date < dateFrom) continue;
+    if (dateTo && t.date > dateTo) continue;
+    if (account && t.account !== account) continue;
+    if (direction && t.direction !== direction) continue;
+    if (t.direction === 'Входящий') totalIn += t.amount;
+    else totalOut += t.amount;
   }
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card"><div class="label">Всего поступлений</div><div class="value green">+${fmt(totalIn)}</div></div>
@@ -58,7 +50,7 @@ function applyFilters() {
     const cd = Storage.categoryData(cat);
     if (!cd) continue;
 
-    let txs = cd.transactions.filter(t => {
+    let txs = Storage.categoryTransactions(cat).filter(t => {
       if (f.dateFrom && t.date < f.dateFrom) return false;
       if (f.dateTo && t.date > f.dateTo) return false;
       if (f.account && t.account !== f.account) return false;
@@ -166,10 +158,8 @@ function renderCounterparties() {
 
   for (const cp of Storage.counterparties()) {
     if (shownCount >= MAX_CP) { hasMore = true; break; }
-    const cd = Storage.counterpartyData(cp);
-    if (!cd) continue;
 
-    let txs = cd.transactions.filter(t => {
+    let txs = Storage.counterpartyTransactions(cp).filter(t => {
       if (f.dateFrom && t.date < f.dateFrom) return false;
       if (f.dateTo && t.date > f.dateTo) return false;
       if (f.account && t.account !== f.account) return false;

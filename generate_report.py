@@ -267,6 +267,8 @@ def main():
     }
 
     json_str = json.dumps(json_data, ensure_ascii=False, indent=1)
+    # Prevent </script> from breaking the HTML parser
+    json_str = json_str.replace("</", "<\\/")
 
     # Generate index.html
     html = f"""<!DOCTYPE html>
@@ -325,7 +327,7 @@ def main():
 <div id="counterpartiesContainer" class="categories" style="display:none;"></div>
 
 <script>
-var DATA = {json_str};
+window.DATA = {json_str};
 </script>
 <script src="js/storage.js"></script>
 <script src="js/state.js"></script>

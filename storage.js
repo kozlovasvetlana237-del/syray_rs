@@ -1,29 +1,53 @@
+if (typeof window.DATA === 'undefined') {
+  document.body.innerHTML = '<div style="padding:40px;text-align:center;color:red;font-size:18px;">Ошибка: данные не загружены. Проверьте консоль браузера (F12).</div>';
+  throw new Error('DATA is not defined');
+}
+
+const _ = window.DATA;
+
 const Storage = {
   accounts() {
-    return DATA.accounts;
+    return _.accounts;
   },
   categories() {
-    return DATA.categories;
+    return _.categories;
   },
   categoryData(cat) {
-    return DATA.category_data[cat];
+    const d = _.category_data[cat];
+    if (!d) return null;
+    return d;
+  },
+  categoryTransactions(cat) {
+    const cd = _.category_data[cat];
+    if (!cd) return [];
+    return cd.transaction_ids.map(i => _.transactions[i]);
   },
   counterparties() {
-    return DATA.counterparties;
+    return _.counterparties;
   },
   counterpartyData(cp) {
-    return DATA.counterparty_data[cp];
+    const d = _.counterparty_data[cp];
+    if (!d) return null;
+    return d;
+  },
+  counterpartyTransactions(cp) {
+    const cd = _.counterparty_data[cp];
+    if (!cd) return [];
+    return cd.transaction_ids.map(i => _.transactions[i]);
+  },
+  allTransactions() {
+    return _.transactions;
   },
   minDate() {
-    return DATA.min_date;
+    return _.min_date;
   },
   maxDate() {
-    return DATA.max_date;
+    return _.max_date;
   },
   totalIn() {
-    return DATA.total_in;
+    return _.total_in;
   },
   totalOut() {
-    return DATA.total_out;
+    return _.total_out;
   },
 };
